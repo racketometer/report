@@ -1,4 +1,20 @@
 \chapter{Design}
-Assumptions for and explanations to the chosen design.
+This chapter explains what design choices that the application implements and the details of the architectural decisions. The main architecture of the application is as shown in figure \ref{fig:architecture}. 
 
-UML Class diagrams and sequence diagrams (interaction diagrams) to an extent corresponding to the most important parts of the code for the App and the most important part of use cases in the App
+\section{View handling}
+The requirements specify a number of views that should be available. Some of them are more related than others. Because of this the views are divided into two categories. Performance related views and profile related views. This separation facilitates the use of fragments on the performance related views.
+
+\section{Data persistence}
+There are two kinds of data to store on the device; performance data with attributes and meta data and profile data. Performance data will build up over time of use why a database table is the preferred choice. On Android this is facilitated with an internal SQLite database \citep{android:sqlite}. This enables fast storage and easy management of records. The profile data is only a few fields why \verb|SharedPreferences| are the preferred choice \citep{android:sharedprefs}.
+
+\section{Data management}
+The performance data stored in the SQLite database acts as a local cache of data stored on a remote server. To retrieve updated data form the server and store it in the database as well as handle all communication with the database a bound service is used. All communication with external resources over the internet are slow compared to other activities on the device. To ensure responsiveness all calls are handled asynchronous and notifications on new data is notified through out the application with local broadcasts.
+
+\graphic{1}{architecture}{Main application architecture}{fig:architecture}
+
+\section{Data flow}
+The most common user story involving data transfers are when a user requests new data from the web service. On figure \ref{fig:refresh} the call sequence covering this case is shown. It starts with the user initiating the refresh action from the options menu. This tells the Performance service to clear the database and start an API request on the web service through the \verb|PerformanceApi| task. When executing the task, the service registers it self for the callback when data is available. After this the call is returned to the Overview fragment and the UI thread is released to handler other requests.
+
+When the task is done it calls the \verb|sessionsReceived| callback. This begins the database initialization where the new sessions are saved and at last a broadcast is send out. The Main activity listens for the broadcasts and update the fragments accordingly.
+
+\graphic{1}{sequence-refresh}{Interaction diagram of a refresh action initiated by the Overview fragment.}{fig:refresh}
