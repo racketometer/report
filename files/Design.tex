@@ -1,5 +1,5 @@
 \chapter{Design}
-This chapter explains what design choices the application implements and the details of the architectural decisions. The main architecture of the application is as shown in figure \ref{fig:architecture}. 
+This chapter explains what design choices the application implements and the details of the architectural decisions. The main architecture of the application is as shown in figure \ref{fig:architecture}. The graphical user-interface targets are Nexus 5, 6 and 7'' WSVGA (Tablet). This means that portrait and landscape modes are developed and tested with these 3 devices in mind.
 
 \section{View handling}
 The requirements specify a number of views that should be available. Some of them are more related than others. Because of this the views are divided into two categories. Performance related views and profile related views. This separation facilitates the use of fragments on the performance related views.
@@ -17,4 +17,13 @@ The most common user story involving data transfers are when a user requests new
 
 When the task is done it calls the \verb|sessionsReceived| callback. This begins the database initialization where the new sessions are saved and at last a broadcast is send out. The Main activity listens for the broadcasts and update the fragments accordingly.
 
-\graphic{1}{sequence-refresh}{Interaction diagram of a refresh action initiated by the Overview fragment.}{fig:refresh}
+\graphic{0.95}{sequence-refresh}{Interaction diagram of a refresh action initiated by the Overview fragment.}{fig:refresh}
+
+\section{External libraries}
+Meta data about where the measurements where recorded is supplied by the backend. To show this information to the user, the Google Maps library is used. To make this work an API key is generated both for debug and release mod, on the Google API Console \citep{google:console}. In the details view a small map is shown in a mapview, with a marker to indicate the position.
+
+To interact with facebook, the facebook SDK is needed \citep{facebook:started}. The application enables posting on your facebook wall through a share button on the details page. The share button posts a \verb|ShareLinkContent| to the facebook API. This was chosen because it did not need the facebook application installed on the device, and since we had no physical phone this was the easiest approach. It enables sharing a url link and url image with a title and some user specified text.
+
+Visualization of the users performances required some form of chart library. To achieve this we used the open-source MPAndroidChart library on github \citep{mpcharts}. The overview fragment uses a basic BarChart to display 5 sessions, where as the details fragment uses a horizontal BarChart to display the 3 attributes on a single session.
+
+
